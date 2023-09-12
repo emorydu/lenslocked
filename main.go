@@ -52,6 +52,13 @@ func pathHandler(w http.ResponseWriter, r *http.Request) {
 // }
 
 func main() {
+
+	// http.Handler - interface with the ServeHTTP method
+	// http.HandlerFunc - a function type that accepts same args as ServeHTTP
+	// method. also implements http.Handler
+
+	// http.Handle("/", http.Handler)
+
 	var router http.HandlerFunc = pathHandler
 	// http.HandleFunc("/", pathHandler)
 	// http.HandleFunc("/contact", contactHandler)
