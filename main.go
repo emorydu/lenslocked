@@ -16,13 +16,32 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pathHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, r.URL.Path)
+	// fmt.Fprintln(w, r.URL.Path)
+	// fmt.Fprintln(w, r.URL.RawPath)
+	switch r.URL.Path {
+	case "/":
+		homeHandler(w, r)
+	case "/contact":
+		contactHandler(w, r)
+	default:
+		// TODO: handle the page not found error
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		// w.WriteHeader(http.StatusNotFound)
+		// fmt.Fprint(w, "404 Not Found")
+	}
+	// if r.URL.Path == "/" {
+	// 	homeHandler(w, r)
+	//  return
+	// } else if r.URL.Path == "/contact" {
+	// 	contactHandler(w, r)
+	//  return
+	// }
 }
 
 func main() {
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/contact", contactHandler)
-	http.HandleFunc("/path", pathHandler)
+	http.HandleFunc("/", pathHandler)
+	// http.HandleFunc("/contact", contactHandler)
+	// http.HandleFunc("/path", pathHandler)
 	fmt.Println("Starting the server on: 3000...")
 	http.ListenAndServe(":3000", nil)
 }
