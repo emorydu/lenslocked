@@ -115,7 +115,7 @@ Don't get desision paralysis!
 ## We are going to use MVC
 
 It isn't perfect, but it:
-- Is predicatable
+- Is predictable
 - Will provide us with some clear rules to follow when organizing our code
 - It will prevent us from getting stuck trying to decide how to organize our code
 - It easy to pickup and utilize when learning. (Many others are not and are butter suited to experienced developers and terms)
