@@ -1,7 +1,7 @@
 Ex 1: Add new fields, and then show in html template
 
 Ex 2: Experiment with different data types
-intergers
+integers
 floats
 maps
 slices
