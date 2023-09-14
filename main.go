@@ -2,41 +2,34 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/emorydu/lenslocked/controllers"
 	"github.com/emorydu/lenslocked/views"
 	"github.com/go-chi/chi/v5"
-	"log"
-	"net/http"
 )
-
-func executeTemplate(w http.ResponseWriter, tmpl string) {
-	t, err := views.Parse(tmpl)
-	if err != nil {
-		log.Printf("parsing template: %v", err)
-		http.Error(w, "There was an error parsing the template.", http.
-			StatusInternalServerError)
-
-		return
-	}
-	t.Execute(w, nil)
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, "home")
-}
-
-func contactHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, "contact")
-}
-
-func faqHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, "faq")
-}
 
 func main() {
 	r := chi.NewRouter()
-	r.Get("/", homeHandler)
-	r.Get("/contact", contactHandler)
-	r.Get("/faq", faqHandler)
+
+	t, err := views.Parse("home")
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/", controllers.StaticHandler(t))
+
+	t, err = views.Parse("contact")
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/contact", controllers.StaticHandler(t))
+
+	t, err = views.Parse("faq")
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/faq", controllers.StaticHandler(t))
+
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
