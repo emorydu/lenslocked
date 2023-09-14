@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/emorydu/lenslocked/controllers/users"
 	"net/http"
 
 	"github.com/emorydu/lenslocked/controllers"
@@ -21,7 +20,7 @@ func main() {
 	r.Get("/faq", controllers.FAQ(views.Must(
 		views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))))
 
-	usersC := users.Users{}
+	usersC := controllers.Users{}
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	r.Get("/signup", usersC.New)
 
