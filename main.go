@@ -2,18 +2,14 @@ package main
 
 import (
 	"fmt"
-	"html/template"
+	"github.com/emorydu/lenslocked/views"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
-	"path/filepath"
-
-	"github.com/go-chi/chi/v5"
 )
 
 func executeTemplate(w http.ResponseWriter, tmpl string) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tplPath := filepath.Join("templates", tmpl+".gohtml")
-	t, err := template.ParseFiles(tplPath)
+	t, err := views.Parse(tmpl)
 	if err != nil {
 		log.Printf("parsing template: %v", err)
 		http.Error(w, "There was an error parsing the template.", http.
@@ -21,14 +17,7 @@ func executeTemplate(w http.ResponseWriter, tmpl string) {
 
 		return
 	}
-	err = t.Execute(w, nil)
-	if err != nil {
-		log.Printf("executing template: %v", err)
-		http.Error(w, "There was an error executing the template.", http.
-			StatusInternalServerError)
-
-		return
-	}
+	t.Execute(w, nil)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
