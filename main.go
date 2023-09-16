@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/emorydu/lenslocked/controllers"
 	"github.com/emorydu/lenslocked/models"
 	"github.com/emorydu/lenslocked/templates"
 	"github.com/emorydu/lenslocked/views"
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/csrf"
+	"net/http"
 )
 
 func main() {
@@ -34,13 +34,29 @@ func main() {
 	usersC.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "signin.gohtml", "tailwind.gohtml"))
 	r.Get("/signup", usersC.New)
 	r.Get("/signin", usersC.SignIn)
-	r.Post("/users", usersC.Create)
 	r.Post("/signin", usersC.ProcessSignIn)
+	r.Post("/users", usersC.Create)
+	r.Get("/users/me", usersC.CurrentUser)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
 
 	fmt.Println("Starting the server on: 3000...")
-	http.ListenAndServe(":3000", r)
+
+	csrfKey := "gFvi45R4fy5xNBlnEnZtQbfAVCYEIAUX"
+	csrfMiddleware := csrf.Protect(
+		[]byte(csrfKey),
+		// TODO: Fix the before deploying.
+		csrf.Secure(false))
+	http.ListenAndServe(":3000", csrfMiddleware(r))
+	//http.ListenAndServe(":3000", TimerMiddleware(r.ServeHTTP))
 }
+
+//func TimerMiddleware(f http.HandlerFunc) http.HandlerFunc {
+//	return func(w http.ResponseWriter, r *http.Request) {
+//		start := time.Now()
+//		f(w, r)
+//		fmt.Println(r.Method, r.URL.Path, "Request Time", time.Since(start))
+//	}
+//}
