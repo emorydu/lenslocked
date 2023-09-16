@@ -5,6 +5,9 @@
 			Welcome back
 		</h1>
 		<form action="/signin" method="POST">
+			<div class="hidden">
+          {{csrfField}}
+			</div>
 			<div class="py-2">
 				<label for="email" class="text-sm font-semibold text-gray-800">Email Address</label>
 				<input name="email" id="email" type="email" placeholder="Email address" required autocapitalize="email"
