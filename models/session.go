@@ -16,13 +16,28 @@ type Session struct {
 	TokenHash string
 }
 
+const (
+	// MinBytesPerToken the minimum number of bytes to be used for each session token.
+	MinBytesPerToken = 32
+)
+
 type SessionService struct {
 	DB *sql.DB
+	// BytesPerToken is used to determine how many bytes to use when generating
+	// each session token. If this value is not set or is less than the
+	// MinBytesPerToken const it will be ignored and MinBytesPerToken will be
+	// used.
+	BytesPerToken int
 }
 
 func (ss *SessionService) Create(userID int) (*Session, error) {
+	// check
+	bytesPerToken := ss.BytesPerToken
+	if bytesPerToken < MinBytesPerToken {
+		bytesPerToken = MinBytesPerToken
+	}
 	// Create the session token
-	token, err := rand.SessionToken()
+	token, err := rand.String(bytesPerToken)
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
