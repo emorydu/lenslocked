@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  # Our Postgres databse
+  # Our Postgres database
   db: # the service will be named db.
     image: postgres # The psql image will be used
     restart: always # Always try to restart if this stops running
