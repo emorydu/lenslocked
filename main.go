@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/emorydu/lenslocked/controllers"
+	"github.com/emorydu/lenslocked/migrations"
 	"github.com/emorydu/lenslocked/models"
 	"github.com/emorydu/lenslocked/templates"
 	"github.com/emorydu/lenslocked/views"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
-	"net/http"
 )
 
 func main() {
@@ -26,6 +28,11 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	err = models.MigrateFS(db, migrations.FS, ".")
+	if err != nil {
+		panic(err)
+	}
 
 	usersC := controllers.Users{
 		UserService:    &models.UserService{DB: db},
@@ -52,13 +59,4 @@ func main() {
 		// TODO: Fix the before deploying.
 		csrf.Secure(false))
 	http.ListenAndServe(":3000", csrfMiddleware(r))
-	//http.ListenAndServe(":3000", TimerMiddleware(r.ServeHTTP))
 }
-
-//func TimerMiddleware(f http.HandlerFunc) http.HandlerFunc {
-//	return func(w http.ResponseWriter, r *http.Request) {
-//		start := time.Now()
-//		f(w, r)
-//		fmt.Println(r.Method, r.URL.Path, "Request Time", time.Since(start))
-//	}
-//}
