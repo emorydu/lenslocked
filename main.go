@@ -30,7 +30,7 @@ func main() {
 	userService := models.UserService{DB: db}
 	sessionService := models.SessionService{DB: db}
 
-	// Setup the Middleware
+	// Setup the middleware
 	umw := controllers.UserMiddleware{
 		SessionService: &sessionService,
 	}
@@ -65,7 +65,11 @@ func main() {
 	r.Post("/signin", usersC.ProcessSignIn)
 	r.Post("/signout", usersC.ProcessSignOut)
 	r.Post("/users", usersC.Create)
-	r.Get("/users/me", usersC.CurrentUser)
+	// r.Get("/users/me", usersC.CurrentUser)
+	r.Route("/users/me", func(r chi.Router) {
+		r.Use(umw.RequireUser)
+		r.Get("/", usersC.CurrentUser)
+	})
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})

@@ -3,12 +3,15 @@ package views
 import (
 	"bytes"
 	"fmt"
-	"github.com/gorilla/csrf"
 	"html/template"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
+
+	"github.com/emorydu/lenslocked/context"
+	"github.com/emorydu/lenslocked/models"
+	"github.com/gorilla/csrf"
 )
 
 func Must(t Template, err error) Template {
@@ -23,6 +26,9 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 	t = t.Funcs(template.FuncMap{
 		"csrfField": func() (template.HTML, error) {
 			return "", fmt.Errorf("csrfField not implemented")
+		},
+		"currentUser": func() (template.HTML, error) {
+			return "", fmt.Errorf("currentUser not implemented")
 		},
 	})
 
@@ -60,6 +66,9 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any) {
 	htmlTmpl = htmlTmpl.Funcs(template.FuncMap{
 		"csrfField": func() template.HTML {
 			return csrf.TemplateField(r)
+		},
+		"currentUser": func() *models.User {
+			return context.User(r.Context())
 		},
 	})
 	var buf bytes.Buffer
