@@ -1,4 +1,6 @@
-bcrypt
 lenslocked
 go.sum
 .idea/
+
+# Env Variables
+.env

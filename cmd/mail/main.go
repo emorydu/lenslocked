@@ -3,15 +3,24 @@ package main
 import (
 	"fmt"
 	"github.com/go-mail/mail/v2"
+	"github.com/joho/godotenv"
+	"log"
+	"os"
+	"strconv"
 )
 
 func main() {
-	const (
-		host     = "sandbox.smtp.mailtrap.io"
-		port     = 587
-		username = "952c04fa231288"
-		password = "bcc3ef043729de"
-	)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	host := os.Getenv("SMTP_HOST")
+	port, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		panic(err)
+	}
+	username := os.Getenv("SMTP_USERNAME")
+	password := os.Getenv("SMTP_PASSWORD")
 
 	from := "orangeduxiaocheng@gmail.com"
 	to := "2392158146@qq.com"
@@ -28,7 +37,7 @@ func main() {
 	//msg.WriteTo(os.Stdout)
 
 	dialer := mail.NewDialer(host, port, username, password)
-	err := dialer.DialAndSend(msg)
+	err = dialer.DialAndSend(msg)
 	if err != nil {
 		panic(err)
 	}
