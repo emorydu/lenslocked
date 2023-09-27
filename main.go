@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 
 	"github.com/emorydu/lenslocked/controllers"
 	"github.com/emorydu/lenslocked/migrations"
