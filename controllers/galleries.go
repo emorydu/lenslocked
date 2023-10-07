@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"fmt"
+	"math/rand"
+	"net/http"
+	"strconv"
+
 	"github.com/emorydu/lenslocked/context"
 	"github.com/emorydu/lenslocked/errors"
 	"github.com/emorydu/lenslocked/models"
 	"github.com/go-chi/chi/v5"
-	"math/rand"
-	"net/http"
-	"strconv"
 )
 
 type Galleries struct {
@@ -48,22 +49,10 @@ func (g Galleries) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	gallery, err := g.galleryByID(w, r)
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusNotFound)
 		return
 	}
-
-	gallery, err := g.GalleryService.ByID(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNotFound) {
-			http.Error(w, "Gallery not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
-	}
-
 	user := context.User(r.Context())
 	if gallery.UserID != user.ID {
 		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
@@ -80,19 +69,8 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Galleries) Update(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	gallery, err := g.galleryByID(w, r)
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusNotFound)
-		return
-	}
-
-	gallery, err := g.GalleryService.ByID(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNotFound) {
-			http.Error(w, "Gallery not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 
@@ -139,18 +117,8 @@ func (g Galleries) Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	gallery, err := g.galleryByID(w, r)
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusNotFound)
-		return
-	}
-	gallery, err := g.GalleryService.ByID(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNotFound) {
-			http.Error(w, "Gallery not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 
@@ -169,4 +137,24 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	g.Templates.Show.Execute(w, r, data)
+}
+
+func (g Galleries) galleryByID(w http.ResponseWriter, r *http.Request) (*models.Gallery, error) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusNotFound)
+		return nil, err
+	}
+
+	gallery, err := g.GalleryService.ByID(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			http.Error(w, "Gallery not found", http.StatusNotFound)
+			return nil, err
+		}
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return nil, err
+	}
+
+	return gallery, nil
 }
