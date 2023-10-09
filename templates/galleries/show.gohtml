@@ -4,8 +4,8 @@
 	<div class="columns-4 gap-4 space-y-4">
       {{range .Images}}
 				<div class="h-min w-full">
-					<a href="/galleries/{{.GalleryID}}/images/{{.Filename}}"><img
-										src="/galleries/{{.GalleryID}}/images/{{.Filename}}" class="w-full"></a>
+					<a href="/galleries/{{.GalleryID}}/images/{{.FilenameEscaped}}"><img
+										src="/galleries/{{.GalleryID}}/images/{{.FilenameEscaped}}" class="w-full"></a>
 				</div>
       {{end}}
 	</div>
