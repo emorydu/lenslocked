@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/emorydu/lenslocked/util/fileutil"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -149,6 +151,28 @@ func (gs *GalleryService) Image(galleryID int, filename string) (Image, error) {
 		Path:      imagePath,
 		Filename:  filename,
 	}, nil
+}
+
+func (gs *GalleryService) CreateImage(galleryID int, filename string, contents io.Reader) error {
+	galleryDir := gs.galleryDir(galleryID)
+	err := fileutil.EnsureDirAll(galleryDir)
+	if err != nil {
+		return fmt.Errorf("creating gallery-%d images directory: %w", galleryID, err)
+	}
+
+	imagePath := filepath.Join(galleryDir, filename)
+	dst, err := os.Create(imagePath)
+	if err != nil {
+		return fmt.Errorf("creating image file: %w", err)
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, contents)
+	if err != nil {
+		return fmt.Errorf("copying contents to image: %w", err)
+	}
+
+	return nil
 }
 
 func (gs *GalleryService) DeleteImage(galleryID int, filename string) error {

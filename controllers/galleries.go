@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -191,6 +192,38 @@ func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, image.Path)
+}
+
+func (g Galleries) UploadImage(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
+	if err != nil {
+		return
+	}
+	err = r.ParseMultipartForm(5 << 20) // 5MB
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	fileHeaders := r.MultipartForm.File["images"]
+	for _, fileHeader := range fileHeaders {
+		func(fileHeader *multipart.FileHeader) {
+			file, err := fileHeader.Open()
+			if err != nil {
+				http.Error(w, "Something went wrong", http.StatusInternalServerError)
+				return
+			}
+			defer file.Close()
+			err = g.GalleryService.CreateImage(gallery.ID, fileHeader.Filename, file)
+			if err != nil {
+				http.Error(w, "Something went wrong", http.StatusInternalServerError)
+				return
+			}
+		}(fileHeader)
+	}
+
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
+	http.Redirect(w, r, editPath, http.StatusFound)
+
 }
 
 func (g Galleries) DeleteImage(w http.ResponseWriter, r *http.Request) {
