@@ -29,3 +29,6 @@ images/
 .env
 *.sum
 .idea
+
+# Node stuff
+node_modules/
