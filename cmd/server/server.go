@@ -29,7 +29,6 @@ func main() {
 }
 
 func run(cfg config) error {
-
 	// Set up the database
 	db, err := models.Open(cfg.PSQL)
 	if err != nil {
@@ -46,7 +45,7 @@ func run(cfg config) error {
 	userService := &models.UserService{DB: db}
 	sessionService := &models.SessionService{DB: db}
 	pwResetService := &models.PasswordResetService{DB: db}
-	emailService := models.NewEmailService(cfg.SMTP)
+	emailService := models.NewEmailService(&cfg.SMTP)
 
 	galleryService := &models.GalleryService{DB: db}
 
@@ -140,7 +139,7 @@ func run(cfg config) error {
 
 type config struct {
 	PSQL models.PostgresConfig
-	SMTP *models.SMTPConfig
+	SMTP models.SMTPConfig
 	CSRF struct {
 		Key    string
 		Secure bool
@@ -171,7 +170,7 @@ func loadEnvConfig() (config, error) {
 	}
 
 	// SMTP
-	cfg.SMTP = &models.SMTPConfig{}
+	//cfg.SMTP = &models.SMTPConfig{}
 	cfg.SMTP.Host = os.Getenv("SMTP_HOST")
 	portStr := os.Getenv("SMTP_PORT")
 	cfg.SMTP.Port, err = strconv.Atoi(portStr)
